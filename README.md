@@ -1,7 +1,6 @@
 # 🚀 手写高性能 GPT 实践
 
-[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/your-repo/high-performance-gpt/blob/main/LICENSE)[![PyTorch Version](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![wakatime](https://wakatime.com/badge/github/FLFoxMail/FGPT.svg)](https://wakatime.com/badge/github/FLFoxMail/FGPT)
+[![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/your-repo/high-performance-gpt/blob/main/LICENSE)[![PyTorch Version](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)[![wakatime](https://wakatime.com/badge/github/FLFoxMail/FGPT.svg)](https://wakatime.com/badge/github/FLFoxMail/FGPT)
 
 ## 📌 项目亮点
 - ​**从零实现**：自注意力 → 完整 GPT → 分布式训练（[训练过程可视化](docs/training_curve.gif)）
@@ -10,11 +9,7 @@
 - ​**开箱即用**：提供预训练模型 ([下载链接](https://example.com/pretrained_models))
 
 ## 🗂️ 目录导航
-1. [快速开始](#🚀-快速开始)
-2. [性能对比](#⚡-性能对比)  
-3. [进阶功能](#🔧-进阶功能)
-4. [贡献指南](#🤝-贡献指南)  
-...（完整目录见[项目文档](docs/README.md)）
+
 
 ## 🚀 快速开始
 ### 环境配置
