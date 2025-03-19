@@ -32,15 +32,55 @@ class MultiHeadAttention(nn.Module):
         y = self.normal(x + y)
         return y
     
-d_model = 512
-d_k = 32
-d_v = 24
+class Block(nn.Module):
+    def __init__(self, d_k, d_v, d_model, num_heads, d_diff):
+        super(Block, self).__init__()
+        self.attn = MultiHeadAttention(d_k, d_v, d_model, num_heads)
+        self.feed = nn.Sequential(
+            nn.Linear(d_model, d_diff),
+            nn.ReLU(),
+            nn.Linear(d_diff, d_model)
+        )
+        self.normal = nn.LayerNorm(d_model)
+        
+    def forward(self, x):
+        y = self.attn(x)
+        y = self.feed(y)
+        y = self.normal(x + y)
+        return y
+    
+class FGPT(nn.Module):
+    def __init__(self, d_k, d_v, d_model, num_heads, d_diff, n_layer):
+        super(FGPT, self).__init__()
+        
+        self.layers = nn.ModuleList([Block(d_k, d_v, d_model, num_heads, d_diff) for _ in range(n_layer)])    
+        self.normal = nn.LayerNorm(d_model)
+    
+    def forward(self, x):
+        
+        for layer in self.layers:
+            x = layer(x)
+        
+        x = self.normal(x)
+        return x
+
+
+# 判断 cuda 是否可用
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
+
+d_model = 768
+d_k = 64
+d_v = 64
 batch_size = 32
 num_heads = 8
-seq_len = 120
-
+seq_len = 256
+d_diff = 128
+n_layer = 768
 x = torch.rand(batch_size, seq_len, d_model)
-model = MultiHeadAttention(d_k, d_v, d_model, num_heads) 
+model = FGPT(d_k, d_v, d_model, num_heads, d_diff, n_layer)
+# 打印模型参数数量大小，假设是4位量化
+print(sum(p.numel() for p in model.parameters()) * 4 / 1024 / 1024)
 y = model(x)
 
 print(y.shape)       
