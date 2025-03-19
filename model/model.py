@@ -28,8 +28,8 @@ class MultiHeadAttention(nn.Module):
         # # [bs * seq, heads, d_v] 
         y = torch.matmul(attention_weights, V).view(-1, x.size(1), self.num_heads * self.d_v) # view 后 [bs, seq, heads * d_v]
         y = self.W(y) # [bs, seq, d_model]
-        y = torch.softmax(y, dim=-1)
-        y = self.normal(x + y)
+        y = self.normal(y)
+        y = x + y
         return y
     
 class Block(nn.Module):
@@ -45,8 +45,8 @@ class Block(nn.Module):
         
     def forward(self, x):
         y = self.attn(x)
-        y = self.feed(y)
-        y = self.normal(x + y)
+        y = self.normal(self.feed(y))
+        y = x + y
         return y
     
 class FGPT(nn.Module):
