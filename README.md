@@ -21,6 +21,23 @@
 |---|---|---|
 |Baseline | 1000 | 25 |
 
+## 使用方法
+1. 克隆仓库
+```bash
+git clone https://github.com/FLFoxMail/FGPT.git
+cd FGPT
+```
+2. 创建虚拟环境
+```bash
+conda create -n fgpt python=3.12
+conda activate fgpt
+```
+
+3. 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
 ## 鸣谢
 感谢以下工作对 GPT 模型的研究与实现，本项目基于这些工作进行了优化和扩展：
 - [Transformers](https://github.com/huggingface/transformers)
