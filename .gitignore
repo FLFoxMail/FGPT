@@ -1,3 +1,9 @@
 runs/*
 *.pyc
+evaluate/ddp/trace/*
+evaluate/ddp/res/*.md
+evaluate/single/trace/*
+evaluate/single/res/*.md
 
+model/__pycache__/__init__.cpython-38.pyc
+model/__pycache__/FGPT.cpython-38.pyc

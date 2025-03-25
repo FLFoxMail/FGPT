@@ -1,0 +1,23 @@
+[
+    {
+        "eval_time": "20250326_002732",
+        "env_name": "base",
+        "device_count": 1,
+        "device_names": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+        "train_time": 79025.81048100001,
+        "train_throughput": 6.327,
+        "memory_usage": 0.578,
+        "pred_time": 14355.52398999971,
+        "pred_throughput": 34.83,
+        "d_k": 128,
+        "d_v": 128,
+        "d_model": 128,
+        "num_heads": 8,
+        "d_diff": 1024,
+        "n_layer": 16,
+        "batch_size": 16,
+        "seq_length": 64,
+        "total_train_time": 79025.81,
+        "total_pred_time": 14355.524
+    }
+]

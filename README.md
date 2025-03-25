@@ -17,9 +17,11 @@
 [] 其他优化
 
 ## 性能对比
-|模型 | 单卡吞吐量 (tokens/s) | 显存占用 (GB) |
-|---|---|---|
-|Baseline | 1000 | 25 |
+| env_name | time_stamp | d_k | d_v | d_model | num_heads | d_diff | n_layer | batch_size | seq_length | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| base | 20250326_002204 | 64 | 64 | 128 | 8 | 1024 | 6 | 16 | 64 | 6230.289 | 240.759 | 1308.085 | 382.238 | 0.16 |
+| base | 20250326_002411 | 128 | 128 | 128 | 8 | 1024 | 16 | 16 | 64 | 18533.553 | 80.934 | 3623.198 | 138.0 | 0.531 |
+
 
 ## 使用方法
 1. 克隆仓库

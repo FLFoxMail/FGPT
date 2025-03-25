@@ -1,0 +1,36 @@
+[
+    {
+        "eval_time": "20250326_002204",
+        "env_name": "base",
+        "train_time": 6230.289,
+        "train_throughput": 240.759,
+        "memory_usage": 0.16,
+        "d_k": 64,
+        "d_v": 64,
+        "d_model": 128,
+        "num_heads": 8,
+        "d_diff": 1024,
+        "n_layer": 6,
+        "batch_size": 16,
+        "seq_length": 64,
+        "pred_time": 1308.085,
+        "pred_throughput": 382.238
+    },
+    {
+        "eval_time": "20250326_002411",
+        "env_name": "base",
+        "train_time": 18533.553,
+        "train_throughput": 80.934,
+        "memory_usage": 0.531,
+        "d_k": 128,
+        "d_v": 128,
+        "d_model": 128,
+        "num_heads": 8,
+        "d_diff": 1024,
+        "n_layer": 16,
+        "batch_size": 16,
+        "seq_length": 64,
+        "pred_time": 3623.198,
+        "pred_throughput": 138.0
+    }
+]

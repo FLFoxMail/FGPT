@@ -55,6 +55,12 @@ class FGPT(nn.Module):
         
         self.layers = nn.ModuleList([Block(d_k, d_v, d_model, num_heads, d_diff) for _ in range(n_layer)])    
         self.normal = nn.LayerNorm(d_model)
+        self.d_k = d_k
+        self.d_v = d_v
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.d_diff = d_diff
+        self.n_layer = n_layer
     
     def forward(self, x):
         
