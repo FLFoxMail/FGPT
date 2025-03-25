@@ -1,5 +1,6 @@
 import sys
 import os
+import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from model.FGPT import FGPT
 import torch
@@ -175,20 +176,11 @@ class ModelBenchmark:
         return pred_time, total_samples
 
 
-def run(rank, world_size):
+def run(rank, world_size, d_k, d_v, d_model, num_heads, d_diff, n_layer, batch_size, seq_length):
     # 初始化进程组
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '12355'
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
-    
-    d_k = 128
-    d_v = 128
-    d_model = 128
-    num_heads = 8
-    d_diff = 1024
-    n_layer = 16
-    batch_size = 16
-    seq_length = 64
 
     model = FGPT(d_k=d_k, d_v=d_v, d_model=d_model, num_heads=num_heads, d_diff=d_diff, n_layer=n_layer)
     # 初始化测评类
@@ -272,6 +264,17 @@ def run(rank, world_size):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Model Benchmarking')
+    parser.add_argument('d_k', type=int, nargs='?', default=128, help='d_k parameter')
+    parser.add_argument('d_v', type=int, nargs='?', default=128, help='d_v parameter')
+    parser.add_argument('d_model', type=int, nargs='?', default=128, help='d_model parameter')
+    parser.add_argument('num_heads', type=int, nargs='?', default=8, help='num_heads parameter')
+    parser.add_argument('d_diff', type=int, nargs='?', default=1024, help='d_diff parameter')
+    parser.add_argument('n_layer', type=int, nargs='?', default=16, help='n_layer parameter')
+    parser.add_argument('batch_size', type=int, nargs='?', default=16, help='batch_size parameter')
+    parser.add_argument('seq_length', type=int, nargs='?', default=64, help='seq_length parameter')
+    args = parser.parse_args()
+
     world_size = torch.cuda.device_count()
-    mp.spawn(run, args=(world_size,), nprocs=world_size, join=True)
+    mp.spawn(run, args=(world_size, args.d_k, args.d_v, args.d_model, args.num_heads, args.d_diff, args.n_layer, args.batch_size, args.seq_length), nprocs=world_size, join=True)
     

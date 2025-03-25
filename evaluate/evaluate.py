@@ -160,16 +160,39 @@ class ModelBenchmark:
         print("Results saved and Markdown table generated.")
 
 
-# 示例用法
 if __name__ == "__main__":
-    d_k = 128
-    d_v = 128
-    d_model = 128
-    num_heads = 8
-    d_diff = 1024
-    n_layer = 16
-    batch_size = 16
-    seq_length = 64
+    # 设置默认参数
+    default_d_k = 128
+    default_d_v = 128
+    default_d_model = 128
+    default_num_heads = 8
+    default_d_diff = 1024
+    default_n_layer = 16
+    default_batch_size = 16
+    default_seq_length = 64
+
+    # 解析命令行参数，如果没有提供则使用默认值
+    if len(sys.argv) == 9:
+        d_k = int(sys.argv[1])
+        d_v = int(sys.argv[2])
+        d_model = int(sys.argv[3])
+        num_heads = int(sys.argv[4])
+        d_diff = int(sys.argv[5])
+        n_layer = int(sys.argv[6])
+        batch_size = int(sys.argv[7])
+        seq_length = int(sys.argv[8])
+    elif len(sys.argv) == 1:
+        d_k = default_d_k
+        d_v = default_d_v
+        d_model = default_d_model
+        num_heads = default_num_heads
+        d_diff = default_d_diff
+        n_layer = default_n_layer
+        batch_size = default_batch_size
+        seq_length = default_seq_length
+    else:
+        print("Usage: python model_benchmark.py [d_k d_v d_model num_heads d_diff n_layer batch_size seq_length]")
+        sys.exit(1)
 
     model = FGPT(d_k=d_k, d_v=d_v, d_model=d_model, num_heads=num_heads, d_diff=d_diff, n_layer=n_layer)
 
