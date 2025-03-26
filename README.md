@@ -17,11 +17,10 @@
 [] 其他优化
 
 ## 性能对比
-| env_name | time_stamp | d_k | d_v | d_model | num_heads | d_diff | n_layer | batch_size | seq_length | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| base | 20250326_010026 | 64 | 64 | 256 | 8 | 64 | 2 | 32 | 128 | 1197.324 | 1252.793 | 327.084 | 1528.66 | 0.208 |
-| base | 20250326_010034 | 128 | 128 | 512 | 8 | 128 | 4 | 32 | 128 | 3482.128 | 430.771 | 980.718 | 509.831 | 0.666 |
-| base | 20250326_010052 | 256 | 256 | 1024 | 8 | 256 | 8 | 32 | 128 | 17373.476 | 86.339 | 5899.958 | 84.746 | 2.676 |
+| env_name | d_k | d_v | d_model | d_diff | n_layer | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |time_stamp|
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| base | 64 | 64 | 256 | 64 | 2 | 974.791 | 1538.791 | 249.464 | 2004.298 | 0.208 | 20250326_201144 |
+| base | 128 | 128 | 512 | 128 | 4 | 3163.942 | 474.092 | 881.687 | 567.095 | 0.666 | 20250326_201151 |
 
 
 ## 使用方法
