@@ -19,6 +19,7 @@
 ## 性能对比
 
 - 单卡环境：
+
 | env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
 | --- | --- | --- | --- | --- | --- | --- |6|
 | base | 0.001 | 209.825 | 7148.8 | 53.019 | 9430.532 | 0.208|
@@ -28,6 +29,7 @@
 | base | 0.286 | 11623.487 | 129.049 | 3642.887 | 137.254 | 9.689|
 
 - 多卡环境：
+  
 | env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
 | --- | --- | --- | --- | --- | --- | --- |
 | base | 0.001 | 604.663 | 413.453 | 85.774 | 2914.636 | 0.214|
