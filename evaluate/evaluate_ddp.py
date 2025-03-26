@@ -37,11 +37,19 @@ def set_gpu_clock(memory_clock, graphics_clock):
 
 
 # 动态生成 Markdown 表格
+
+def count_parameters(model):
+    # 计算模型参数量,并除以 1e9 得到以 B 为单位的参数量
+    param_count = sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9
+    return round(param_count, 3)
+
+
+# 动态生成 Markdown 表格
 def generate_markdown_table(results):
-    markdown = "| env_name | time_stamp | device_count | device_name | d_k | d_v | d_model | num_heads | d_diff | n_layer | batch_size | seq_length | Total Training Time (ms) | Training Throughput (SPS) | Total Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
-    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    markdown = "| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
+    markdown += "| --- | --- | --- | --- | --- | --- | --- |\n"
     for result in results:
-        markdown += f"| {result.get('env_name', 'N/A')} | {result.get('eval_time', 'N/A')} | {result.get('device_count', 'N/A')} | {result.get('device_names', 'N/A')} | {result.get('d_k', 'N/A')} | {result.get('d_v', 'N/A')} | {result.get('d_model', 'N/A')} | {result.get('num_heads', 'N/A')} | {result.get('d_diff', 'N/A')} | {result.get('n_layer', 'N/A')} | {result.get('batch_size', 'N/A')} | {result.get('seq_length', 'N/A')} | {result.get('total_train_time', 'N/A')} | {result.get('train_throughput', 'N/A')} | {result.get('total_pred_time', 'N/A')} | {result.get('pred_throughput', 'N/A')} | {result.get('memory_usage', 'N/A')} |\n"
+        markdown += f"| {result['env_name']} | {result['parameter_count']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']}|\n"
     return markdown
 
 
@@ -65,6 +73,8 @@ class ModelBenchmark:
             'd_diff': model.d_diff,
             'n_layer': model.n_layer
         }
+        self.parameter_count = count_parameters(self.model)
+
 
     def generate_random_data(self, num_samples):
         data = torch.randn(num_samples, self.seq_length, self.d_model).to(self.device)
@@ -118,18 +128,16 @@ class ModelBenchmark:
                 f"Training time on GPU {self.rank}: {train_time:.3f} milliseconds, Memory usage: {memory_usage:.3f} GB, Training Throughput: {train_throughput:.3f} SPS")
 
         memory_usage = round(memory_usage, 3)
+        train_time = round(train_time, 3)
+
         # 存储结果
         result = {
             "eval_time": eval_time,
             "env_name": env_name,
-            "device_count": device_count,
-            "device_names": '_'.join(device_names),
             "train_time": train_time,
             "train_throughput": train_throughput,
             "memory_usage": memory_usage,
-            "pred_time": None,
-            "pred_throughput": None,
-            **self.fgpt_params,
+            "parameter_count": self.parameter_count,
             "batch_size": self.batch_size,
             "seq_length": self.seq_length
         }
@@ -167,6 +175,7 @@ class ModelBenchmark:
             print(
                 f"Prediction time on GPU {self.rank}: {pred_time:.3f} milliseconds, Prediction Throughput: {pred_throughput:.3f} SPS")
 
+        pred_time = round(pred_time, 3)
         # 存储结果
         for result in self.results:
             if result["eval_time"] == eval_time:

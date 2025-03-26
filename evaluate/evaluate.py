@@ -31,10 +31,10 @@ def count_parameters(model):
 
 # 动态生成 Markdown 表格
 def generate_markdown_table(results):
-    markdown = "| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) | time_stamp |\n"
-    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    markdown = "| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
+    markdown += "| --- | --- | --- | --- | --- | --- | --- |\n"
     for result in results:
-        markdown += f"| {result['env_name']} | {result['parameter_count']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']} | {result['eval_time']} |\n"
+        markdown += f"| {result['env_name']} | {result['parameter_count']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']}|\n"
     return markdown
 
 
