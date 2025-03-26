@@ -17,11 +17,24 @@
 [] 其他优化
 
 ## 性能对比
-| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) | time_stamp |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| base | 0.001 | 1015.324 | 1477.361 | 252.83 | 1977.616 | 0.208 | 20250326_204806 |
-| base | 0.009 | 3249.441 | 461.618 | 901.709 | 554.503 | 0.666 | 20250326_204812 |
-| base | 0.071 | 16734.607 | 89.635 | 5727.69 | 87.295 | 2.676 | 20250326_204828 |
+
+- 单卡环境：
+| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
+| --- | --- | --- | --- | --- | --- | --- |6|
+| base | 0.001 | 209.825 | 7148.8 | 53.019 | 9430.532 | 0.208|
+| base | 0.009 | 540.858 | 2773.371 | 154.5 | 3236.25 | 0.665|
+| base | 0.071 | 2794.232 | 536.82 | 903.021 | 553.697 | 2.676|
+| base | 0.143 | 5807.015 | 258.308 | 1812.458 | 275.868 | 5.014|
+| base | 0.286 | 11623.487 | 129.049 | 3642.887 | 137.254 | 9.689|
+
+- 多卡环境：
+| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
+| --- | --- | --- | --- | --- | --- | --- |
+| base | 0.001 | 604.663 | 413.453 | 85.774 | 2914.636 | 0.214|
+| base | 0.009 | 1490.268 | 167.755 | 244.134 | 1024.028 | 0.699|
+| base | 0.071 | 6532.981 | 38.267 | 1336.805 | 187.013 | 2.943|
+| base | 0.143 | 12880.158 | 19.41 | 2664.64 | 93.821 | 5.546|
+| base | 0.286 | 25467.03 | 9.817 | 5338.4 | 46.831 | 10.754|
 
 
 

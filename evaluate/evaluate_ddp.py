@@ -46,6 +46,10 @@ def count_parameters(model):
 
 # 动态生成 Markdown 表格
 def generate_markdown_table(results):
+    print("*"*50)
+    print("Benchmark Results")
+    print(results)
+    print("*"*50)
     markdown = "| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
     markdown += "| --- | --- | --- | --- | --- | --- | --- |\n"
     for result in results:
@@ -194,9 +198,6 @@ def run(rank, world_size, d_k, d_v, d_model, num_heads, d_diff, n_layer, batch_s
     model = FGPT(d_k=d_k, d_v=d_v, d_model=d_model, num_heads=num_heads, d_diff=d_diff, n_layer=n_layer)
     # 初始化测评类
     benchmark = ModelBenchmark(rank, world_size, model, batch_size=batch_size, seq_length=seq_length, d_model=d_model, device=rank)
-    # 固定 GPU 频率
-    if rank == 0:
-        set_gpu_clock(memory_clock=5001, graphics_clock=2100)
 
     # 当前时间戳
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
