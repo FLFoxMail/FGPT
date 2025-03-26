@@ -22,12 +22,13 @@ def set_seed(seed):
     torch.backends.cudnn.benchmark = False
 
 
+
 # 动态生成 Markdown 表格
 def generate_markdown_table(results):
-    markdown = "| env_name | time_stamp | d_k | d_v | d_model | num_heads | d_diff | n_layer | batch_size | seq_length | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
-    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    markdown = "| env_name | d_k | d_v | d_model | d_diff | n_layer | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |time_stamp|\n"
+    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
     for result in results:
-        markdown += f"| {result['env_name']} | {result['eval_time']} | {result['d_k']} | {result['d_v']} | {result['d_model']} | {result['num_heads']} | {result['d_diff']} | {result['n_layer']} | {result['batch_size']} | {result['seq_length']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']} |\n"
+        markdown += f"| {result['env_name']} | {result['d_k']} | {result['d_v']} | {result['d_model']} | {result['d_diff']} | {result['n_layer']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']} | {result['eval_time']} |\n"
     return markdown
 
 

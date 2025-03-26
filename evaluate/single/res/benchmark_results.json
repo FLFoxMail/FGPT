@@ -1,9 +1,9 @@
 [
     {
-        "eval_time": "20250326_010026",
+        "eval_time": "20250326_201144",
         "env_name": "base",
-        "train_time": 1197.324,
-        "train_throughput": 1252.793,
+        "train_time": 974.791,
+        "train_throughput": 1538.791,
         "memory_usage": 0.208,
         "d_k": 64,
         "d_v": 64,
@@ -13,14 +13,14 @@
         "n_layer": 2,
         "batch_size": 32,
         "seq_length": 128,
-        "pred_time": 327.084,
-        "pred_throughput": 1528.66
+        "pred_time": 249.464,
+        "pred_throughput": 2004.298
     },
     {
-        "eval_time": "20250326_010034",
+        "eval_time": "20250326_201151",
         "env_name": "base",
-        "train_time": 3482.128,
-        "train_throughput": 430.771,
+        "train_time": 3163.942,
+        "train_throughput": 474.092,
         "memory_usage": 0.666,
         "d_k": 128,
         "d_v": 128,
@@ -30,14 +30,14 @@
         "n_layer": 4,
         "batch_size": 32,
         "seq_length": 128,
-        "pred_time": 980.718,
-        "pred_throughput": 509.831
+        "pred_time": 881.687,
+        "pred_throughput": 567.095
     },
     {
-        "eval_time": "20250326_010052",
+        "eval_time": "20250326_201206",
         "env_name": "base",
-        "train_time": 17373.476,
-        "train_throughput": 86.339,
+        "train_time": 16792.414,
+        "train_throughput": 89.326,
         "memory_usage": 2.676,
         "d_k": 256,
         "d_v": 256,
@@ -47,7 +47,7 @@
         "n_layer": 8,
         "batch_size": 32,
         "seq_length": 128,
-        "pred_time": 5899.958,
-        "pred_throughput": 84.746
+        "pred_time": 5698.269,
+        "pred_throughput": 87.746
     }
 ]
