@@ -22,13 +22,19 @@ def set_seed(seed):
     torch.backends.cudnn.benchmark = False
 
 
+# 计算模型参数量
+def count_parameters(model):
+    # 计算模型参数量,并除以 1e9 得到以 B 为单位的参数量
+    param_count = sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9
+    return round(param_count, 3)
+
 
 # 动态生成 Markdown 表格
 def generate_markdown_table(results):
-    markdown = "| env_name | d_k | d_v | d_model | d_diff | n_layer | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |time_stamp|\n"
-    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    markdown = "| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) | time_stamp |\n"
+    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
     for result in results:
-        markdown += f"| {result['env_name']} | {result['d_k']} | {result['d_v']} | {result['d_model']} | {result['d_diff']} | {result['n_layer']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']} | {result['eval_time']} |\n"
+        markdown += f"| {result['env_name']} | {result['parameter_count']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']} | {result['eval_time']} |\n"
     return markdown
 
 
@@ -48,6 +54,7 @@ class ModelBenchmark:
             'd_diff': model.d_diff,
             'n_layer': model.n_layer
         }
+        self.parameter_count = count_parameters(self.model)
 
     def generate_random_data(self, num_samples):
         data = torch.randn(num_samples, self.seq_length, self.fgpt_params['d_model']).to(self.device)
@@ -104,7 +111,7 @@ class ModelBenchmark:
             "train_time": calculated_train_time,
             "train_throughput": train_throughput,
             "memory_usage": memory_usage,
-            **self.fgpt_params,
+            "parameter_count": self.parameter_count,
             "batch_size": self.batch_size,
             "seq_length": self.seq_length
         }

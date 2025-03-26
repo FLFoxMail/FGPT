@@ -10,17 +10,19 @@
 
 ## 代办事项
 [x] 实现GPT
-[] 测评环境，测评指标
+[x] 测评环境，测评指标
 [] 单卡计算性能优化
 [] 单卡显存性能优化
 [] 多卡分布式训练优化
 [] 其他优化
 
 ## 性能对比
-| env_name | d_k | d_v | d_model | d_diff | n_layer | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |time_stamp|
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| base | 64 | 64 | 256 | 64 | 2 | 974.791 | 1538.791 | 249.464 | 2004.298 | 0.208 | 20250326_201144 |
-| base | 128 | 128 | 512 | 128 | 4 | 3163.942 | 474.092 | 881.687 | 567.095 | 0.666 | 20250326_201151 |
+| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) | time_stamp |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| base | 0.001 | 1015.324 | 1477.361 | 252.83 | 1977.616 | 0.208 | 20250326_204806 |
+| base | 0.009 | 3249.441 | 461.618 | 901.709 | 554.503 | 0.666 | 20250326_204812 |
+| base | 0.071 | 16734.607 | 89.635 | 5727.69 | 87.295 | 2.676 | 20250326_204828 |
+
 
 
 ## 使用方法
