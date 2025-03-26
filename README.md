@@ -21,7 +21,7 @@
 - 单卡环境：
 
 | env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |
-| --- | --- | --- | --- | --- | --- | --- |6|
+| --- | --- | --- | --- | --- | --- | --- |
 | base | 0.001 | 209.825 | 7148.8 | 53.019 | 9430.532 | 0.208|
 | base | 0.009 | 540.858 | 2773.371 | 154.5 | 3236.25 | 0.665|
 | base | 0.071 | 2794.232 | 536.82 | 903.021 | 553.697 | 2.676|
