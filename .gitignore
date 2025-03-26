@@ -7,5 +7,3 @@ evaluate/single/res/*.md
 
 model/__pycache__/__init__.cpython-38.pyc
 model/__pycache__/FGPT.cpython-38.pyc
-evaluate/single/res/benchmark_results.json
-evaluate/ddp/res/benchmark_results.json
