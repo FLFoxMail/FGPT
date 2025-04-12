@@ -6,12 +6,18 @@ PYTHON_SCRIPT="evaluate/evaluate.py"
 # 定义不同的参数组合数组，每个元素代表一组参数，参数顺序为：
 # d_k d_v d_model num_heads d_diff n_layer batch_size seq_length
 param_combinations=(
-    "64 64 256 8 64 2 32 128"
-    "128 128 512 8 128 4 32 128"
-    "256 256 1024 8 256 8 32 128"
-    "256 256 1024 8 256 16 32 128"
-    "256 256 1024 8 256 32 32 128"
-    "256 256 1024 8 256 64 32 128" 
+    "64 64 256 8 64 2 32 128 ../data/data.txt SDataset SGPT"
+    "128 128 512 8 128 4 32 128 ../data/data.txt SDataset SGPT"
+    "256 256 1024 8 256 8 32 128 ../data/data.txt SDataset SGPT"
+    "64 64 256 8 64 2 32 128 ../data/data.txt FDataset SGPT"
+    "128 128 512 8 128 4 32 128 ../data/data.txt FDataset SGPT"
+    "256 256 1024 8 256 8 32 128 ../data/data.txt FDataset SGPT"
+    "64 64 256 8 64 2 32 128 ../data/data.txt SDataset FGPT"
+    "128 128 512 8 128 4 32 128 ../data/data.txt SDataset FGPT"
+    "256 256 1024 8 256 8 32 128 ../data/data.txt SDataset FGPT"
+    "64 64 256 8 64 2 32 128 ../data/data.txt FDataset FGPT"
+    "128 128 512 8 128 4 32 128 ../data/data.txt FDataset FGPT"
+    "256 256 1024 8 256 8 32 128 ../data/data.txt FDataset FGPT"
 )
 
 # 遍历参数组合数组，对每一组参数执行一次基准测试

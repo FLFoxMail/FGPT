@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+import jieba  # 使用结巴分词作为中文分词器
+from datasets import load_dataset
 from torchtext.data.utils import get_tokenizer
 from torchtext.vocab import build_vocab_from_iterator
 import math
 import os
-import jieba  # 使用结巴分词作为中文分词器
-from datasets import load_dataset
 
 
 # 单头自注意力（非batch版本，高效写法）
@@ -139,119 +139,3 @@ class SGPT(nn.Module):
             x = layer(x)
         x = self.normal(x)
         return x
-
-class ChineseTextDataset(Dataset):
-    def __init__(self, data, seq_length):
-        self.data = data
-        self.seq_length = seq_length
-
-    def __len__(self):
-        return len(self.data) - self.seq_length
-
-    def __getitem__(self, idx):
-        input_seq = self.data[idx:idx + self.seq_length]
-        target_seq = self.data[idx + 1:idx + self.seq_length + 1]
-        input_ids = []
-        target_ids = []
-        for token in input_seq:
-            input_ids.append(token)
-        for token in target_seq:
-            target_ids.append(token)
-        input_ids = torch.tensor(input_ids, dtype=torch.long)
-        target_ids = torch.tensor(target_ids, dtype=torch.long)
-        return input_ids, target_ids
-from torchtext.datasets import Multi30k
-from torchtext.data.utils import get_tokenizer
-
-def prepare_data():
-    try:
-        # 假设本地 TXT 文件路径
-        file_path = "/path/to/your/local/file.txt"
-        if not os.path.exists(file_path):
-            print(f"指定的文件 {file_path} 不存在，请检查路径。")
-            return None
-        with open(file_path, 'r', encoding='utf-8') as f:
-            all_text = f.read()
-        # 使用结巴分词进行中文分词
-        tokenized_text = jieba.lcut(all_text)
-        seq_length = 32
-        custom_dataset = ChineseTextDataset(tokenized_text, seq_length)
-        dataloader = DataLoader(custom_dataset, batch_size=64, shuffle=True)
-        return dataloader
-    except Exception as e:
-        print(f"加载数据集时出错: {e}")
-        return None
-
-
-
-def train(model, dataloader, optimizer, criterion, epochs):
-    for epoch in range(epochs):
-        total_loss = 0
-        for i, (input_ids, target_ids) in enumerate(dataloader):
-            optimizer.zero_grad()
-            output = model(input_ids)
-            output = output.view(-1, output.size(-1))
-            target_ids = target_ids.view(-1)
-            loss = criterion(output, target_ids)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
-        print(f'Epoch {epoch + 1}, Loss: {total_loss / len(dataloader)}')
-
-
-def generate_text(model, start_text, max_length=50, temperature=1.0):
-    model.eval()
-    # 更换为中文分词器
-    tokenizer = jieba.lcut
-    start_tokens = tokenizer(start_text)
-    input_ids = []
-    for token in start_tokens:
-        input_ids.append(1)  # 这里假设词汇表id为1，实际应根据词汇表来
-    input_ids = torch.tensor(input_ids, dtype=torch.long).unsqueeze(0)
-    generated_text = start_text
-
-    for _ in range(max_length):
-        output = model(input_ids)
-        logits = output[:, -1, :] / temperature
-        probs = torch.softmax(logits, dim=-1)
-        next_token = torch.multinomial(probs, num_samples=1)
-        input_ids = torch.cat([input_ids, next_token], dim=1)
-        next_word = "unk"  # 这里假设未知词为"unk"，实际应根据词汇表来
-        generated_text += next_word
-
-    return generated_text
-
-        
-    
-    
-
-# 使用 127.0.0.1:7890 代理
-import os
-import sys
-
-# 设置环境变量
-os.environ["http_proxy"] = "http://127.0.0.1:7890"
-os.environ["https_proxy"] = "http://127.0.0.1:7890"
-
-
-
-if __name__ == "__main__":
-    d_k = 64
-    d_v = 64
-    d_model = 256
-    num_heads = 4
-    d_diff = 512
-    n_layer = 2
-    epochs = 5
-
-    dataloader = prepare_data()
-    model = SGPT(d_k, d_v, d_model, num_heads, d_diff, n_layer)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-
-    train(model, dataloader, optimizer, criterion, epochs)
-
-    start_text = "Once upon a time"
-    generated = generate_text(model, start_text)
-    print("Generated Text:")
-    print(generated)

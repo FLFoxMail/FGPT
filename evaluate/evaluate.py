@@ -10,6 +10,8 @@ import json
 from datetime import datetime
 from torch.utils.data import DataLoader, TensorDataset
 from torch.profiler import profile, record_function, ProfilerActivity
+from dataset.SDataset import SDataset
+from dataset.FDataset import FDataset
 
 
 # 固定随机种子
@@ -31,10 +33,10 @@ def count_parameters(model):
 
 # 动态生成 Markdown 表格
 def generate_markdown_table(results):
-    markdown = "| env_name | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
-    markdown += "| --- | --- | --- | --- | --- | --- | --- |\n"
+    markdown = "| env_name | dataset | model | Parameter Count (B) | Training Time (ms) | Training Throughput (SPS) | Prediction Time (ms) | Prediction Throughput (SPS) | Memory Usage (GB) |\n"
+    markdown += "| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
     for result in results:
-        markdown += f"| {result['env_name']} | {result['parameter_count']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']}|\n"
+        markdown += f"| {result['env_name']} | {result['dataset']} | {result['model_type']} | {result['parameter_count']} | {result['train_time']} | {result['train_throughput']} | {result['pred_time']} | {result['pred_throughput']} | {result['memory_usage']}|\n"
     return markdown
 
 
@@ -56,18 +58,23 @@ class ModelBenchmark:
         }
         self.parameter_count = count_parameters(self.model)
 
-    def generate_random_data(self, num_samples):
-        data = torch.randn(num_samples, self.seq_length, self.fgpt_params['d_model']).to(self.device)
-        labels = torch.randint(0, 2, (num_samples, self.seq_length)).to(self.device)
-        return DataLoader(TensorDataset(data, labels), batch_size=self.batch_size, shuffle=True)
+    def generate_random_data(self, num_samples, data_path, dataset):
+        if dataset == 'SDataset':
+            dataSet = SDataset(data_path, tokenizer_type='basic_chinese')
+        elif dataset == 'FDataset':
+            dataSet = FDataset(data_path, tokenizer_type='basic_chinese')
+        else:
+            raise ValueError(f"Invalid dataset name: {dataset}")
+        dataloader = DataLoader(dataSet, batch_size=self.batch_size, shuffle=True)
+        return dataloader
 
-    def train(self, num_epochs, num_samples, env_name, eval_time, num_rounds):
-        dataloader = self.generate_random_data(num_samples)
+    def train(self, num_epochs, num_samples, env_name, eval_time, num_rounds, data_path, dataset, model_type):
+        dataloader = self.generate_random_data(num_samples, data_path, dataset)
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-4)
 
         # 构建包含 FGPT 参数、batch_size 和 seq_length 的 trace 文件名称
-        trace_train_name = f"evaluate/single/trace/{env_name}_{eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.batch_size}_seq_length_{self.seq_length}_trace_train.json"
+        trace_train_name = f"evaluate/single/trace/{env_name}_{dataset}_{model_type}_{eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.batch_size}_seq_length_{self.seq_length}_trace_train.json"
 
         # 使用 torch.profiler 记录训练时间
         with profile(
@@ -113,14 +120,16 @@ class ModelBenchmark:
             "memory_usage": memory_usage,
             "parameter_count": self.parameter_count,
             "batch_size": self.batch_size,
-            "seq_length": self.seq_length
+            "seq_length": self.seq_length,
+            "model_type": model_type,
+            "dataset": dataset,
         }
 
-    def predict(self, num_samples, env_name, eval_time, num_rounds):
+    def predict(self, num_samples, env_name, eval_time, num_rounds, data_path, dataset, model_type):
         dataloader = self.generate_random_data(num_samples)
 
         # 构建包含 FGPT 参数、batch_size 和 seq_length 的 trace 文件名称
-        trace_predict_name = f"evaluate/single/trace/{env_name}_{eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.batch_size}_seq_length_{self.seq_length}_trace_predict.json"
+        trace_predict_name = f"evaluate/single/trace/{env_name}_{dataset}_{model_type}_{eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.batch_size}_seq_length_{self.seq_length}_trace_predict.json"
 
         # 使用 torch.profiler 记录预测时间
         with profile(
@@ -151,19 +160,19 @@ class ModelBenchmark:
         self.result["pred_time"] = pred_time
         self.result["pred_throughput"] = pred_throughput
 
-    def save_results(self):
+    def save_results(self, dataset,model_type):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         # 如果 文件不存在，则创建一个新文件并写入 []
-        if not os.path.exists(f"evaluate/single/res/benchmark_results.json"):
-            with open(f"evaluate/single/res/benchmark_results.json", "w") as f:
+        if not os.path.exists(f"evaluate/single/res/{dataset}_{model_type}_benchmark_results.json"):
+            with open(f"evaluate/single/res/{dataset}_{model_type}_benchmark_results.json", "w") as f:
                 json.dump([], f, indent=4)
-        with open(f"evaluate/single/res/benchmark_results.json", "r") as f:
+        with open(f"evaluate/single/res/{dataset}_{model_type}_benchmark_results.json", "r") as f:
             results = json.load(f)
         results.append(self.result)
-        with open(f"evaluate/single/res/benchmark_results.json", "w") as f:
+        with open(f"evaluate/single/res/{dataset}_{model_type}_benchmark_results.json", "w") as f:
             json.dump(results, f, indent=4)
         markdown_table = generate_markdown_table(results)
-        with open(f"evaluate/single/res/benchmark_results_{timestamp}.md", "w") as f:
+        with open(f"evaluate/single/res/{dataset}_{model_type}_benchmark_results_{timestamp}.md", "w") as f:
             f.write(markdown_table)
         print("Results saved and Markdown table generated.")
 
@@ -178,6 +187,9 @@ if __name__ == "__main__":
     default_n_layer = 16
     default_batch_size = 16
     default_seq_length = 64
+    default_data_path = "./data/data.txt"
+    default_dataset = "SDataset"
+    default_model_type = "SGPT"
 
     # 解析命令行参数，如果没有提供则使用默认值
     if len(sys.argv) == 9:
@@ -189,6 +201,9 @@ if __name__ == "__main__":
         n_layer = int(sys.argv[6])
         batch_size = int(sys.argv[7])
         seq_length = int(sys.argv[8])
+        data_path = str(sys.argv[9])
+        dataset = str(sys.argv[10])
+        model_type = str(sys.argv[11])
     elif len(sys.argv) == 1:
         d_k = default_d_k
         d_v = default_d_v
@@ -198,12 +213,23 @@ if __name__ == "__main__":
         n_layer = default_n_layer
         batch_size = default_batch_size
         seq_length = default_seq_length
+        data_path = default_data_path
+        dataset = default_dataset
+        model_type = default_model_type
     else:
         print("Usage: python model_benchmark.py [d_k d_v d_model num_heads d_diff n_layer batch_size seq_length]")
         sys.exit(1)
 
-    model = FGPT(d_k=d_k, d_v=d_v, d_model=d_model, num_heads=num_heads, d_diff=d_diff, n_layer=n_layer)
-
+    if model_type == "SGPT":
+        from model.SGPT import SGPT
+        model = SGPT(d_k=d_k, d_v=d_v, d_model=d_model, num_heads=num_heads, d_diff=d_diff, n_layer=n_layer)
+    elif model_type == "FGPT":
+        from model.FGPT import FGPT
+        model = FGPT(d_k=d_k, d_v=d_v, d_model=d_model, num_heads=num_heads, d_diff=d_diff, n_layer=n_layer)
+    else:
+        print("Invalid model type. Please choose from 'SGPT' or 'FGPT'.")
+        sys.exit(1)
+    model = model.cuda()
     # 初始化测评类
     benchmark = ModelBenchmark(model, batch_size, seq_length)
 
@@ -216,9 +242,9 @@ if __name__ == "__main__":
     num_rounds = 3  # 多轮测试
 
     # 进行性能分析
-    benchmark.train(num_epochs=1, num_samples=500, env_name=env_name, eval_time=timestamp, num_rounds=num_rounds)
-    benchmark.predict(num_samples=500, env_name=env_name, eval_time=timestamp, num_rounds=num_rounds)
+    benchmark.train(num_epochs=1, num_samples=500, env_name=env_name, eval_time=timestamp, num_rounds=num_rounds, data_path=data_path, dataset=dataset, model_type=model_type)
+    benchmark.predict(num_samples=500, env_name=env_name, eval_time=timestamp, num_rounds=num_rounds, data_path=data_path, dataset=dataset, model_type=model_type)
 
     # 保存结果
-    benchmark.save_results()
+    benchmark.save_results(dataset,model_type)
     
