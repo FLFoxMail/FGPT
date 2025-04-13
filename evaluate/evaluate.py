@@ -13,7 +13,6 @@ from torch.profiler import profile, record_function, ProfilerActivity
 from dataset.SDataset import SDataset
 from dataset.FDataset import FDataset
 
-
 # 固定随机种子
 def set_seed(seed):
     torch.manual_seed(seed)
@@ -59,11 +58,12 @@ class Config:
         self.train_ratio = 0.7
         self.val_ratio = 0.15
         self.test_ratio = 0.15
-        self.num_epochs = 1
-        self.num_samples = 500
         self.device = "cuda"
         self.eval_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.num_rounds = 3
+        # 测试的次数（用于取平均值）
+        self.num_rounds = 2
+        # 循环次数，用于训练模型
+        self.epochs = 2
         self.vocab_size = 0
 
 
@@ -121,35 +121,34 @@ class ModelBenchmark:
         optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-4)
 
         # 构建包含 FGPT 参数、batch_size 和 seq_length 的 trace 文件名称
-        trace_train_name = f"evaluate/single/trace/{self.config.device}_{self.config.dataset}_{self.config.model_type}_{self.config.eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.config.batch_size}_seq_length_{self.config.seq_length}_trace_train.json"
+        trace_train_name = f"evaluate/single/trace/train_{self.config.device}_{self.config.dataset}_{self.config.model_type}_{self.config.eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.config.batch_size}_seq_length_{self.config.seq_length}_trace_train.json"
 
         # 使用 torch.profiler 记录训练时间
         with profile(
             activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU],
-            schedule=torch.profiler.schedule(wait=1, warmup=1, active=3),
+            schedule=torch.profiler.schedule(wait=1, warmup=1, active=self.config.num_rounds),
             on_trace_ready=lambda prof: prof.export_chrome_trace(trace_train_name),
             record_shapes=True,
             profile_memory=True,
         ) as prof:
             start_time = time.perf_counter()
-            total_samples = 0
-            for t in range(self.config.num_rounds):
-                for epoch in range(self.config.num_epochs):
-                    for batch_data, batch_labels in dataloader:
-                        total_samples += batch_data.size(0)
-                        # 移动数据
-                        batch_data = batch_data.to(self.config.device)
-                        batch_labels = batch_labels.to(self.config.device)
-                        optimizer.zero_grad()
-                        with record_function("forward"):
-                            outputs = self.model(batch_data)
-                        with record_function("loss"):
-                            loss = criterion(outputs.view(-1, outputs.size(-1)), batch_labels.view(-1))
-                        with record_function("backward"):
-                            loss.backward()
-                        with record_function("optimizer_step"):
-                            optimizer.step()
-                        prof.step()
+            for i in range(self.config.epochs):
+                total_samples = 0
+                for batch_data, batch_labels in dataloader:
+                    total_samples += batch_data.size(0)
+                    # 移动数据
+                    batch_data = batch_data.to(self.config.device)
+                    batch_labels = batch_labels.to(self.config.device)
+                    optimizer.zero_grad()
+                    with record_function("forward"):
+                        outputs = self.model(batch_data)
+                    with record_function("loss"):
+                        loss = criterion(outputs.view(-1, outputs.size(-1)), batch_labels.view(-1))
+                    with record_function("backward"):
+                        loss.backward()
+                    with record_function("optimizer_step"):
+                        optimizer.step()
+            prof.step()
             torch.cuda.synchronize()
             calculated_train_time = (time.perf_counter() - start_time) * 1000 / self.config.num_rounds  # 转换为毫秒
             train_throughput = total_samples / (calculated_train_time / 1000)
@@ -177,27 +176,27 @@ class ModelBenchmark:
 
     def predict(self):
         dataloader = self.getdDtaloader(mode='test')
-
         # 构建包含 FGPT 参数、batch_size 和 seq_length 的 trace 文件名称
-        trace_predict_name = f"evaluate/single/trace/{self.config.device}_{self.config.dataset}_{self.config.model_type}_{self.config.eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.config.batch_size}_seq_length_{self.config.seq_length}_trace_predict.json"
+        trace_predict_name = f"evaluate/single/trace/predict_{self.config.device}_{self.config.dataset}_{self.config.model_type}_{self.config.eval_time}_d_k_{self.fgpt_params['d_k']}_d_v_{self.fgpt_params['d_v']}_d_model_{self.fgpt_params['d_model']}_num_heads_{self.fgpt_params['num_heads']}_d_diff_{self.fgpt_params['d_diff']}_n_layer_{self.fgpt_params['n_layer']}_batch_size_{self.config.batch_size}_seq_length_{self.config.seq_length}_trace_predict.json"
 
+        # 把模型切换到评估模式
         # 使用 torch.profiler 记录预测时间
         with profile(
             activities=[ProfilerActivity.CUDA, ProfilerActivity.CPU],
-            schedule=torch.profiler.schedule(wait=1, warmup=1, active=3),
+            schedule=torch.profiler.schedule(wait=1, warmup=1, active=self.config.num_rounds),
             on_trace_ready=lambda prof: prof.export_chrome_trace(trace_predict_name),
             record_shapes=True,
             profile_memory=True,
         ) as prof:
             start_time = time.perf_counter()
-            for t in range(self.config.num_rounds):
-                total_samples = 0
-                with torch.no_grad():
-                    for batch_data, _ in dataloader:
-                        total_samples += batch_data.size(0)
-                        with record_function("predict"):
-                            outputs = self.model(batch_data)
-                        prof.step()
+            total_samples = 0
+            with torch.no_grad():
+                for batch_data, _ in dataloader:
+                    total_samples += batch_data.size(0)
+                    batch_data = batch_data.to(self.config.device)
+                    with record_function("predict"):
+                        outputs = self.model(batch_data)
+                    prof.step()
             torch.cuda.synchronize()
             pred_time = (time.perf_counter() - start_time) * 1000 / self.config.num_rounds  # 转换为毫秒
             pred_throughput = total_samples / (pred_time / 1000)

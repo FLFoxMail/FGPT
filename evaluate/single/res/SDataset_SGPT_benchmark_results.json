@@ -1,0 +1,44 @@
+[
+    {
+        "eval_time": "20250413_173944",
+        "device": "cuda",
+        "train_time": 50164.056,
+        "train_throughput": 44.673,
+        "memory_usage": 4.694,
+        "parameter_count": 0.003,
+        "batch_size": 16,
+        "seq_length": 1024,
+        "model_type": "SGPT",
+        "dataset": "SDataset",
+        "pred_time": 17.328,
+        "pred_throughput": 115.418
+    },
+    {
+        "eval_time": "20250413_174949",
+        "device": "cuda",
+        "train_time": 152554.079,
+        "train_throughput": 14.69,
+        "memory_usage": 4.694,
+        "parameter_count": 0.003,
+        "batch_size": 16,
+        "seq_length": 1024,
+        "model_type": "SGPT",
+        "dataset": "SDataset",
+        "pred_time": 17.66,
+        "pred_throughput": 113.253
+    },
+    {
+        "eval_time": "20250413_180136",
+        "device": "cuda",
+        "train_time": 37725.015,
+        "train_throughput": 59.404,
+        "memory_usage": 4.694,
+        "parameter_count": 0.003,
+        "batch_size": 16,
+        "seq_length": 1024,
+        "model_type": "SGPT",
+        "dataset": "SDataset",
+        "pred_time": 7.832,
+        "pred_throughput": 255.355
+    }
+]

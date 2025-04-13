@@ -84,16 +84,17 @@ class MultiHeadAttentionBatch(nn.Module):
 
     def forward(self, x):
         batch_size, seq_length, _ = x.size()
-        attn_output = torch.zeros(batch_size, seq_length, self.d_model * self.num_heads).to(x.device)
-        for i in range(seq_length):
-            x_i = x[:, i, :]
-            K = self.K(x_i)
-            Q = self.Q(x_i)
-            V = self.V(x_i)
-            attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.d_k)
+        head_outputs = []
+        # 循环方式遍历多头
+        for h in range(self.num_heads):
+            K_h = self.K(x)[:, h * self.d_k:(h + 1) * self.d_k]
+            Q_h = self.Q(x)[:, h * self.d_k:(h + 1) * self.d_k]
+            V_h = self.V(x)[:, h * self.d_v:(h + 1) * self.d_v]
+            attn_scores = torch.matmul(Q_h, K_h.transpose(-2, -1)) / math.sqrt(self.d_k)
             attn_probs = torch.softmax(attn_scores, dim=-1)
-            attn_output_i = torch.matmul(attn_probs, V)
-            attn_output[:, i, :] = attn_output_i
+            attn_output = torch.matmul(attn_probs, V_h)
+            head_outputs.append(attn_output)
+        attn_output = torch.cat(head_outputs, dim=-1)
         attn_output = attn_output.view(batch_size, seq_length, -1)
         y = self.W(attn_output)
         y = self.normal(y)
