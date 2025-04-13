@@ -1,6 +1,7 @@
 import json
 import plotly.express as px
 
+
 class TraceAnalyzer:
     def __init__(self, filepath: str):
         self.filepath = filepath
@@ -124,23 +125,42 @@ class TraceAnalyzer:
 
         fig = px.pie(
             data,
-            values="占比",
+            values="总时长 (μs)",
             names="类别",
-            title="Total Time Share by Category (cat)",
-            hover_data=["总时长 (μs)", "含义"]
+            title=f"Total Time: {total} μs",
+            hover_data=["占比", "含义"]
         )
+
+        # 配置饼图显示百分比和总时长
+        fig.update_traces(textposition='inside', textinfo='percent+value')
+
+        # 调整图例位置在标题下方呈上下结构
+        fig.update_layout(
+            legend=dict(
+                orientation="v",
+                yanchor="top",
+                y=0.9,
+                xanchor="left",
+                x=0.01
+            )
+        )
+
         fig.show()
 
     def plot_top_ops_bar(self):
-        top_ops = self.summary["top_ops_by_duration"]
-        data = []
-        for op in top_ops:
+        name_durations = {}
+        for op in self.summary["top_ops_by_duration"]:
             name = op["name"]
+            if name not in name_durations:
+                name_durations[name] = 0
+            name_durations[name] += op["duration"]
+
+        data = []
+        for name, duration in name_durations.items():
             base = name.split("::")[-1].split(":")[-1].strip()
             data.append({
                 "操作": name,
-                "耗时 (μs)": op["duration"],
-                "类型": op["category"],
+                "耗时 (μs)": duration,
                 "含义": self.name_meaning_dict.get(base, "(暂无定义)")
             })
 
@@ -149,8 +169,8 @@ class TraceAnalyzer:
             x="耗时 (μs)",
             y="操作",
             orientation="h",
-            hover_data=["类型", "含义"],
-            title="Top 20 Ops by Duration (name + cat)",
+            hover_data=["含义"],
+            title="Top 20 Ops by Duration (name)",
             height=600
         )
         fig.update_layout(yaxis={'categoryorder': 'total ascending'})
@@ -161,6 +181,7 @@ class TraceAnalyzer:
         self.analyze(top_n=top_n)
         self.plot_pie_by_category()
         self.plot_top_ops_bar()
+
 
 # test
 if __name__ == "__main__":
