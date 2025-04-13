@@ -164,19 +164,19 @@ class SDataset(Dataset):
         return x, y
 
 # 测试代码
-if __name__ == '__main__':
-    seed = 42
-    data_dir='data/wiki_zh'
-    vocab_path = 'check_points/wiki_zh/vocab.txt'
+# if __name__ == '__main__':
+#     seed = 42
+#     data_dir='data/wiki_zh1'
+#     vocab_path = 'check_points/wiki_zh1/vocab.txt'
     
-    set_seed(seed)
+#     set_seed(seed)
 
-    dataset = SDataset(data_dir=data_dir, seq_len=16, tokenizer_type='basic_chinese', usage_percentage=1.0,
-                           train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, mode='train', vocab_path=vocab_path)
-    print(len(dataset))
+#     dataset = SDataset(data_dir=data_dir, seq_len=16, tokenizer_type='basic_chinese', usage_percentage=1.0,
+#                            train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, mode='train', vocab_path=vocab_path)
+#     print(len(dataset))
     
-    for i in range(10):
-        x, y = dataset[i]
-        print(x)
-        print(y)
-        print()
+#     for i in range(10):
+#         x, y = dataset[i]
+#         print(x)
+#         print(y)
+#         print()
