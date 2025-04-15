@@ -183,7 +183,7 @@ class TraceAnalyzer:
         self.plot_top_ops_bar()
 
 
-# test
-if __name__ == "__main__":
-    analyzer = TraceAnalyzer("evaluate/single/trace/train_cuda_SDataset_SGPT_20250413_173944_d_k_128_d_v_128_d_model_128_num_heads_8_d_diff_1024_n_layer_2_batch_size_16_seq_length_1024_trace_train.json")
-    analyzer.analyze_and_plot_all(top_n=20)
+# # test
+# if __name__ == "__main__":
+#     analyzer = TraceAnalyzer("evaluate/single/trace/train_cuda_SDataset_SGPT_20250413_173944_d_k_128_d_v_128_d_model_128_num_heads_8_d_diff_1024_n_layer_2_batch_size_16_seq_length_1024_trace_train.json")
+#     analyzer.analyze_and_plot_all(top_n=20)
